@@ -19,6 +19,7 @@ class Song extends Model
         'cover_url',
         'audio_url',
         'duration',
+        'lyrics',
         'plays_count',
         'is_featured',
         'is_trending',

@@ -29,6 +29,7 @@ class HomeController extends Controller
             'cover' => $song->cover_url,
             'audio' => $song->audio_url,
             'duration' => $song->duration,
+            'lyrics' => $song->lyrics ? json_decode($song->lyrics, true) : [],
             'plays' => number_format($song->plays_count),
         ])->values();
 

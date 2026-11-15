@@ -11,6 +11,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- YouTube IFrame Player API for Real Audio Streaming -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <style>
         :root {
@@ -205,6 +207,11 @@
 </head>
 <body class="min-h-screen bg-[#050302]">
 
+    <!-- Hidden Real YouTube Streaming Audio Engine -->
+    <div id="ytAudioEngineContainer" style="position: fixed; width: 1px; height: 1px; left: -9999px; top: -9999px; opacity: 0; pointer-events: none; z-index: -1;">
+        <div id="ytPlayer"></div>
+    </div>
+
     <div class="relative mx-auto min-h-screen max-w-md overflow-hidden app-surface-bg flex flex-col justify-between shadow-2xl pb-28">
 
         <!-- 1. TOP HEADER -->
@@ -265,6 +272,37 @@
                         <button onclick="selectCategory('{{ $genre }}', this)" class="{{ $loop->first ? 'pill-active px-[20px] py-[9px]' : 'glass-pill-inactive px-[18px] py-[9px]' }} rounded-full text-[13px] shrink-0 font-medium transition">
                             {{ $genre }}
                         </button>
+                    @endforeach
+                </div>
+            </section>
+
+            <!-- 3.5 IMPORTED PLAYLISTS SECTION (Real YouTube Playlists) -->
+            <section class="mt-5 {{ $playlists->count() === 0 ? 'hidden' : '' }}" id="playlistsSection">
+                <div class="mb-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-[19px] font-semibold tracking-tight text-white">Imported Playlists</h2>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600/30 text-red-400 border border-red-500/30">YouTube</span>
+                    </div>
+                    <button onclick="openImportModal()" class="text-[12px] font-semibold text-[#F04E23] hover:underline flex items-center gap-1">
+                        + Import More
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3.5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1" id="playlistsContainer">
+                    @foreach ($playlists as $pl)
+                        <div onclick="filterByPlaylist('{{ addslashes($pl->title) }}', this)" class="playlist-card relative w-[190px] h-[135px] rounded-[24px] overflow-hidden shrink-0 snap-start cursor-pointer group shadow-xl border border-white/10 bg-[#1A100C]">
+                            <img src="{{ $pl->cover_url }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="{{ $pl->title }}">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+
+                            <div class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                            </div>
+
+                            <div class="absolute bottom-2.5 left-3 right-3">
+                                <h3 class="text-[13px] font-bold text-white truncate drop-shadow">{{ $pl->title }}</h3>
+                                <p class="text-[11px] text-[#D6CFCB] font-medium truncate mt-0.5">{{ $pl->songs->count() ?: $pl->tracks_count }} tracks • Live Sync</p>
+                            </div>
+                        </div>
                     @endforeach
                 </div>
             </section>
@@ -355,7 +393,7 @@
 
                 <ul class="space-y-2.5" id="songListContainer">
                     @foreach ($allSongs as $song)
-                        <li data-genre="{{ $song->genre }}" data-search="{{ strtolower($song->title.' '.$song->artist_name.' '.$song->album_name) }}" class="song-item">
+                        <li data-genre="{{ $song->genre }}" data-album="{{ strtolower($song->album_name ?? '') }}" data-search="{{ strtolower($song->title.' '.$song->artist_name.' '.($song->album_name ?? '')) }}" class="song-item">
                             <button onclick="playSongById({{ $song->id }})" class="w-full flex items-center justify-between p-2.5 rounded-2xl glass-pill-inactive text-left transition hover:bg-white/15">
                                 <div class="flex items-center gap-3 min-w-0 flex-1">
                                     <img src="{{ $song->cover_url }}" class="w-12 h-12 rounded-xl object-cover shrink-0" alt="">
@@ -722,6 +760,56 @@
         let activeCategory = 'All';
         let likeCount = 13420;
         let isLiked = false;
+        let activeEngine = 'none'; // 'youtube' or 'html5'
+        let ytPlayer = null;
+        let ytReady = false;
+
+        // YouTube IFrame API Ready Callback
+        window.onYouTubeIframeAPIReady = function() {
+            ytPlayer = new YT.Player('ytPlayer', {
+                height: '1',
+                width: '1',
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 0,
+                    'disablekb': 1,
+                    'fs': 0,
+                    'rel': 0,
+                    'origin': window.location.origin
+                },
+                events: {
+                    'onReady': () => {
+                        ytReady = true;
+                    },
+                    'onStateChange': onYtStateChange,
+                    'onError': onYtError
+                }
+            });
+        };
+
+        function onYtStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                isPlaying = true;
+                updatePlayIcons();
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                isPlaying = false;
+                updatePlayIcons();
+            } else if (event.data === YT.PlayerState.ENDED) {
+                if (isRepeat) {
+                    ytPlayer.seekTo(0);
+                    ytPlayer.playVideo();
+                } else {
+                    nextTrack();
+                }
+            }
+        }
+
+        function onYtError(event) {
+            const song = currentSong();
+            if (song && song.audio) {
+                playHtml5Audio(song);
+            }
+        }
 
         function currentSong() {
             return songs[currentTrackIndex] || songs[0];
@@ -758,15 +846,22 @@
             document.getElementById('lyricsMiniCover').src = song.cover;
             renderLyrics(song);
 
-            // Audio stream playback
-            audio.src = song.audio;
-            audio.play().then(() => {
-                isPlaying = true;
-                updatePlayIcons();
-            }).catch(() => {
-                isPlaying = false;
-                updatePlayIcons();
-            });
+            // REAL YOUTUBE AUDIO ENGINE:
+            if (song.video_id && ytReady && ytPlayer) {
+                try {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    activeEngine = 'youtube';
+                    ytPlayer.loadVideoById(song.video_id);
+                    ytPlayer.playVideo();
+                    isPlaying = true;
+                    updatePlayIcons();
+                } catch (e) {
+                    playHtml5Audio(song);
+                }
+            } else {
+                playHtml5Audio(song);
+            }
 
             // Highlight in track list
             document.querySelectorAll('.song-title').forEach(el => el.classList.remove('text-[#F04E23]'));
@@ -777,8 +872,37 @@
             showToast(`Playing: ${song.title}`);
         }
 
+        function playHtml5Audio(song) {
+            if (ytPlayer && ytReady) {
+                try { ytPlayer.pauseVideo(); } catch (e) {}
+            }
+            activeEngine = 'html5';
+            audio.src = song.audio;
+            audio.play().then(() => {
+                isPlaying = true;
+                updatePlayIcons();
+            }).catch(() => {
+                isPlaying = false;
+                updatePlayIcons();
+            });
+        }
+
         function togglePlayPause() {
-            if (audio.src) {
+            if (activeEngine === 'youtube' && ytPlayer && ytReady) {
+                try {
+                    const state = ytPlayer.getPlayerState();
+                    if (state === YT.PlayerState.PLAYING) {
+                        ytPlayer.pauseVideo();
+                        isPlaying = false;
+                    } else {
+                        ytPlayer.playVideo();
+                        isPlaying = true;
+                    }
+                } catch (e) {
+                    playHtml5Audio(currentSong());
+                }
+                updatePlayIcons();
+            } else if (audio.src) {
                 if (audio.paused) {
                     audio.play();
                     isPlaying = true;
@@ -841,16 +965,35 @@
             showToast(isRepeat ? 'Repeat: ON' : 'Repeat: OFF');
         }
 
-        audio.addEventListener('timeupdate', () => {
-            if (audio.duration) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                document.getElementById('audioScrubber').value = percent;
-                const mins = Math.floor(audio.currentTime / 60);
-                const secs = String(Math.floor(audio.currentTime % 60)).padStart(2, '0');
-                document.getElementById('currentTimeLabel').textContent = `${mins}:${secs}`;
-                syncLyrics(audio.currentTime);
+        // Live Playback Scrubber & Timer loop
+        setInterval(() => {
+            let curr = 0;
+            let dur = 0;
+
+            if (activeEngine === 'youtube' && ytPlayer && ytReady) {
+                try {
+                    curr = ytPlayer.getCurrentTime() || 0;
+                    dur = ytPlayer.getDuration() || 0;
+                } catch(e) {}
+            } else if (activeEngine === 'html5' && audio.duration) {
+                curr = audio.currentTime;
+                dur = audio.duration;
             }
-        });
+
+            if (dur > 0) {
+                const percent = (curr / dur) * 100;
+                document.getElementById('audioScrubber').value = percent;
+                const mins = Math.floor(curr / 60);
+                const secs = String(Math.floor(curr % 60)).padStart(2, '0');
+                document.getElementById('currentTimeLabel').textContent = `${mins}:${secs}`;
+                
+                const totalMins = Math.floor(dur / 60);
+                const totalSecs = String(Math.floor(dur % 60)).padStart(2, '0');
+                document.getElementById('totalDurationLabel').textContent = `${totalMins}:${totalSecs}`;
+
+                syncLyrics(curr);
+            }
+        }, 300);
 
         audio.addEventListener('ended', () => {
             if (isRepeat) {
@@ -862,9 +1005,33 @@
         });
 
         function seekAudio(val) {
-            if (audio.duration) {
+            if (activeEngine === 'youtube' && ytPlayer && ytReady) {
+                try {
+                    const dur = ytPlayer.getDuration();
+                    if (dur > 0) {
+                        ytPlayer.seekTo((val / 100) * dur, true);
+                    }
+                } catch (e) {}
+            } else if (audio.duration) {
                 audio.currentTime = (val / 100) * audio.duration;
             }
+        }
+
+        function filterByPlaylist(title, el) {
+            const cleanTitle = title.toLowerCase();
+            let count = 0;
+            document.querySelectorAll('.song-item').forEach(item => {
+                const album = item.dataset.album || '';
+                const search = item.dataset.search || '';
+                const match = album.includes(cleanTitle) || search.includes(cleanTitle);
+                item.classList.toggle('hidden', !match);
+                if (match) count++;
+            });
+            const countLabel = document.getElementById('songsCountLabel');
+            if (countLabel) countLabel.textContent = `${count} tracks`;
+            showToast(`Playlist: ${title} (${count} songs)`);
+            const listSection = document.getElementById('songListContainer');
+            if (listSection) listSection.scrollIntoView({ behavior: 'smooth' });
         }
 
         // ==============================================================
@@ -1129,6 +1296,34 @@
                 statusText.textContent = '✓ Successfully imported to Element Library!';
 
                 if (data.status === 'success' && data.tracks && data.tracks.length > 0) {
+                    // Update or display Playlists section
+                    if (data.playlist) {
+                        const plSection = document.getElementById('playlistsSection');
+                        if (plSection) plSection.classList.remove('hidden');
+                        const plContainer = document.getElementById('playlistsContainer');
+                        if (plContainer) {
+                            const plDiv = document.createElement('div');
+                            plDiv.className = 'playlist-card relative w-[190px] h-[135px] rounded-[24px] overflow-hidden shrink-0 snap-start cursor-pointer group shadow-xl border border-white/10 bg-[#1A100C]';
+                            plDiv.onclick = () => filterByPlaylist(data.playlist.title, plDiv);
+                            plDiv.innerHTML = `
+                                <img src="${data.playlist.cover_url}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${data.playlist.title}">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+                                <div class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-lg">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                </div>
+                                <div class="absolute bottom-2.5 left-3 right-3">
+                                    <h3 class="text-[13px] font-bold text-white truncate drop-shadow">${data.playlist.title}</h3>
+                                    <p class="text-[11px] text-[#D6CFCB] font-medium truncate mt-0.5">${data.playlist.tracks_count} tracks • Live Sync</p>
+                                </div>
+                            `;
+                            plContainer.insertBefore(plDiv, plContainer.firstChild);
+                        }
+                    }
+
+                    // Hide empty banner if present
+                    const emptyBanner = document.getElementById('emptyImportBanner');
+                    if (emptyBanner) emptyBanner.classList.add('hidden');
+
                     // Prepend tracks into live songs queue
                     data.tracks.forEach(t => {
                         const existingIdx = songs.findIndex(s => s.id === t.id);
@@ -1140,7 +1335,8 @@
                             // Add to DOM list
                             const li = document.createElement('li');
                             li.dataset.genre = t.genre;
-                            li.dataset.search = (t.title + ' ' + t.artist).toLowerCase();
+                            li.dataset.album = (t.album || '').toLowerCase();
+                            li.dataset.search = (t.title + ' ' + t.artist + ' ' + (t.album || '')).toLowerCase();
                             li.className = 'song-item animate-pulse';
                             li.innerHTML = `
                                 <button onclick="playSongById(${t.id})" class="w-full flex items-center justify-between p-2.5 rounded-2xl glass-pill-inactive text-left transition hover:bg-white/15 border-l-2 border-red-500">

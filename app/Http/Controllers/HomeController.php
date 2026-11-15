@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Artist;
+use App\Models\Playlist;
 use App\Models\Song;
 use Illuminate\Contracts\View\View;
 
@@ -18,6 +19,7 @@ class HomeController extends Controller
         $popularSongs = Song::orderByDesc('plays_count')->take(8)->get();
         $allSongs = Song::all();
         $artists = Artist::all();
+        $playlists = Playlist::with('songs')->get();
         $genres = ['All', 'Bollywood', 'Punjabi', 'Synth-Pop', 'Hip-Hop', 'Dance Pop', 'Sufi', 'Lo-Fi', 'R&B'];
 
         $playerQueue = $allSongs->map(fn (Song $song): array => [
@@ -28,6 +30,7 @@ class HomeController extends Controller
             'genre' => $song->genre,
             'cover' => $song->cover_url,
             'audio' => $song->audio_url,
+            'video_id' => $song->video_id,
             'duration' => $song->duration,
             'lyrics' => $song->lyrics ? json_decode($song->lyrics, true) : [],
             'plays' => number_format($song->plays_count),
@@ -39,6 +42,7 @@ class HomeController extends Controller
             'popularSongs' => $popularSongs,
             'allSongs' => $allSongs,
             'artists' => $artists,
+            'playlists' => $playlists,
             'genres' => $genres,
             'playerQueue' => $playerQueue,
         ]);

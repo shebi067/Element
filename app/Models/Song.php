@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Song extends Model
 {
@@ -18,6 +19,7 @@ class Song extends Model
         'genre',
         'cover_url',
         'audio_url',
+        'video_id',
         'duration',
         'lyrics',
         'plays_count',
@@ -31,5 +33,13 @@ class Song extends Model
     public function artist(): BelongsTo
     {
         return $this->belongsTo(Artist::class);
+    }
+
+    /**
+     * @return BelongsToMany<Playlist, $this>
+     */
+    public function playlists()
+    {
+        return $this->belongsToMany(Playlist::class, 'playlist_song');
     }
 }

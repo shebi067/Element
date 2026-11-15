@@ -104,19 +104,40 @@ class YouTubeImportController extends Controller
                 ?? $snippet['thumbnails']['medium']['url']
                 ?? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=900&auto=format&fit=crop&q=80';
 
-            // 2. Fetch Playlist Songs / Items (up to 50 items)
-            $itemsResponse = Http::timeout(12)->get('https://www.googleapis.com/youtube/v3/playlistItems', [
-                'part' => 'snippet,contentDetails',
-                'maxResults' => 50,
-                'playlistId' => $playlistId,
-                'key' => $apiKey,
-            ]);
+            // 2. Fetch Playlist Songs / Items (Paginated up to 200 items)
+            $rawTracks = [];
+            $nextPageToken = null;
+            $maxPages = 4; // 4 pages * 50 = up to 200 songs
 
-            if ($itemsResponse->failed()) {
-                return null;
+            for ($page = 0; $page < $maxPages; $page++) {
+                $params = [
+                    'part' => 'snippet,contentDetails',
+                    'maxResults' => 50,
+                    'playlistId' => $playlistId,
+                    'key' => $apiKey,
+                ];
+                if ($nextPageToken) {
+                    $params['pageToken'] = $nextPageToken;
+                }
+
+                $itemsResponse = Http::timeout(12)->get('https://www.googleapis.com/youtube/v3/playlistItems', $params);
+
+                if ($itemsResponse->failed()) {
+                    break;
+                }
+
+                $pageItems = $itemsResponse->json('items') ?? [];
+                if (empty($pageItems)) {
+                    break;
+                }
+
+                $rawTracks = array_merge($rawTracks, $pageItems);
+                $nextPageToken = $itemsResponse->json('nextPageToken');
+                if (! $nextPageToken) {
+                    break;
+                }
             }
 
-            $rawTracks = $itemsResponse->json('items') ?? [];
             if (empty($rawTracks)) {
                 return null;
             }
@@ -136,6 +157,11 @@ class YouTubeImportController extends Controller
 
                 // Skip deleted or private videos
                 if ($rawTitle === 'Private video' || $rawTitle === 'Deleted video') {
+                    continue;
+                }
+
+                $videoId = $tSnippet['resourceId']['videoId'] ?? null;
+                if (! $videoId) {
                     continue;
                 }
 
@@ -159,12 +185,12 @@ class YouTubeImportController extends Controller
                     'genre' => 'Top Hits',
                     'cover_url' => $coverUrl,
                     'audio_url' => $audioUrl,
+                    'video_id' => $videoId,
                     'duration' => '3:45',
-                    'video_id' => $tSnippet['resourceId']['videoId'] ?? null,
                     'lyrics' => [
                         ['time' => 0, 'text' => "Now Playing: {$parsed['title']}"],
                         ['time' => 6, 'text' => "Artist: {$parsed['artist']}"],
-                        ['time' => 14, 'text' => 'Live real-time YouTube stream'],
+                        ['time' => 14, 'text' => 'Streaming in real-time from YouTube'],
                         ['time' => 22, 'text' => 'Enjoy the music in Liquid Glass UI'],
                     ],
                 ];
@@ -252,6 +278,7 @@ class YouTubeImportController extends Controller
                     'genre' => $t['genre'],
                     'cover_url' => $t['cover_url'],
                     'audio_url' => $t['audio_url'],
+                    'video_id' => $t['video_id'] ?? null,
                     'duration' => $t['duration'],
                     'lyrics' => json_encode($t['lyrics']),
                     'plays_count' => rand(250000, 3500000),
@@ -272,6 +299,7 @@ class YouTubeImportController extends Controller
                 'genre' => $song->genre,
                 'cover' => $song->cover_url,
                 'audio' => $song->audio_url,
+                'video_id' => $song->video_id,
                 'duration' => $song->duration,
                 'lyrics' => $t['lyrics'],
                 'plays' => number_format($song->plays_count),
@@ -311,6 +339,7 @@ class YouTubeImportController extends Controller
                         'genre' => 'Hip-Hop',
                         'cover_url' => 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=900&auto=format&fit=crop&q=80',
                         'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+                        'video_id' => 'hF2L07bZ28M',
                         'duration' => '4:50',
                         'lyrics' => [
                             ['time' => 0, 'text' => 'Bayaan Aaj Bhar Raha Hoon'],
@@ -328,6 +357,7 @@ class YouTubeImportController extends Controller
                         'genre' => 'Hip-Hop',
                         'cover_url' => 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&auto=format&fit=crop&q=80',
                         'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+                        'video_id' => 'B_6vVjQ-L-g',
                         'duration' => '3:40',
                         'lyrics' => [
                             ['time' => 0, 'text' => 'Shamon ke saye jab dhalne lage'],
@@ -343,6 +373,7 @@ class YouTubeImportController extends Controller
                         'genre' => 'Sufi',
                         'cover_url' => 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=900&auto=format&fit=crop&q=80',
                         'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                        'video_id' => '5Eqb_-j3FDA',
                         'duration' => '3:44',
                         'lyrics' => [
                             ['time' => 0, 'text' => 'Agg laavan majboori nu'],
@@ -358,6 +389,7 @@ class YouTubeImportController extends Controller
                         'genre' => 'Acoustic',
                         'cover_url' => 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=900&auto=format&fit=crop&q=80',
                         'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                        'video_id' => '_XbvXH59m2o',
                         'duration' => '2:55',
                         'lyrics' => [
                             ['time' => 0, 'text' => 'Kahani suno haan zubani suno'],

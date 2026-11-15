@@ -6,4 +6,12 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Element Music palette */
+    --color-night: #0b0b0b;
+    --color-coal: #1a1a1a;
+    --color-graphite: #333333;
+    --color-ash: #6b6b6b;
+    --color-mist: #d9d9d9;
+    --color-snow: #ffffff;
 }

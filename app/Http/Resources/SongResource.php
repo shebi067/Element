@@ -23,6 +23,7 @@ class SongResource extends JsonResource
             'genre' => $this->genre,
             'cover_url' => $this->cover_url,
             'audio_url' => $this->audio_url,
+            'video_id' => $this->video_id,
             'duration' => $this->duration,
             'plays_count' => $this->plays_count,
             'is_featured' => (bool) $this->is_featured,

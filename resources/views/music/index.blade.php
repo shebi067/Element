@@ -207,11 +207,6 @@
 </head>
 <body class="min-h-screen bg-[#050302]">
 
-    <!-- Hidden Real YouTube Streaming Audio Engine -->
-    <div id="ytAudioEngineContainer" style="position: fixed; width: 1px; height: 1px; left: -9999px; top: -9999px; opacity: 0; pointer-events: none; z-index: -1;">
-        <div id="ytPlayer"></div>
-    </div>
-
     <div class="relative mx-auto min-h-screen max-w-md overflow-hidden app-surface-bg flex flex-col justify-between shadow-2xl pb-28">
 
         <!-- 1. TOP HEADER -->
@@ -454,12 +449,17 @@
         <!-- ============================================================== -->
         <div id="nowPlayingModal" class="fixed inset-0 max-w-md mx-auto bg-black z-40 translate-y-full transition-transform duration-500 ease-out flex flex-col justify-between overflow-hidden">
             
+            <!-- REAL YOUTUBE VIDEO/AUDIO ENGINE (Full dimensions for reliable streaming) -->
+            <div id="ytPlayerWrapper" class="absolute inset-0 w-full h-full z-0 overflow-hidden flex items-center justify-center bg-black transition-opacity duration-500 opacity-0 pointer-events-none">
+                <div id="ytPlayer" class="w-full h-full"></div>
+            </div>
+
             <!-- FULL-BLEED BACKGROUND POSTER (SS 3 style) -->
             <img id="playerFullPoster" src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=900&auto=format&fit=crop&q=80" 
-                 class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 transition-all duration-700" alt="Song Cover Poster">
+                 class="absolute inset-0 w-full h-full object-cover object-center filter brightness-95 transition-all duration-700 z-[1]" alt="Song Cover Poster">
             
             <!-- Vignette & Dark Gradient overlays so controls and text are completely clear -->
-            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/95 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/95 pointer-events-none z-[2]"></div>
 
             <!-- TOP BAR (SS 2 & 3 style) -->
             <div class="relative z-10 w-full pt-6 pb-2 px-5 flex items-center justify-between shrink-0">
@@ -468,9 +468,16 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
 
-                <!-- Center Tag: "TOP HITS" / "NOW PLAYING" -->
-                <div class="text-center">
-                    <span id="playerTopCategoryTag" class="text-[12px] font-extrabold tracking-widest uppercase text-white/90 drop-shadow">TOP HITS</span>
+                <!-- Center Switcher: Song / Video Pill (SS 2 YT Music Style) -->
+                <div class="glass-pill-inactive p-1 rounded-full flex items-center gap-1 text-[11px] font-semibold">
+                    <button id="modeAudioBtn" onclick="switchPlayerMode('audio')" class="px-3 py-1 rounded-full pill-active text-neutral-950 flex items-center gap-1 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        Song
+                    </button>
+                    <button id="modeVideoBtn" onclick="switchPlayerMode('video')" class="px-3 py-1 rounded-full text-white/70 hover:text-white flex items-center gap-1 transition">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        Video
+                    </button>
                 </div>
 
                 <!-- Right 3-Dots Menu -->
@@ -763,29 +770,60 @@
         let activeEngine = 'none'; // 'youtube' or 'html5'
         let ytPlayer = null;
         let ytReady = false;
+        let pendingVideoId = null;
 
         // YouTube IFrame API Ready Callback
         window.onYouTubeIframeAPIReady = function() {
             ytPlayer = new YT.Player('ytPlayer', {
-                height: '1',
-                width: '1',
+                height: '100%',
+                width: '100%',
                 playerVars: {
                     'playsinline': 1,
                     'controls': 0,
                     'disablekb': 1,
                     'fs': 0,
                     'rel': 0,
+                    'autoplay': 1,
+                    'modestbranding': 1,
                     'origin': window.location.origin
                 },
                 events: {
                     'onReady': () => {
                         ytReady = true;
+                        if (pendingVideoId) {
+                            ytPlayer.loadVideoById(pendingVideoId);
+                            ytPlayer.playVideo();
+                            pendingVideoId = null;
+                        }
                     },
                     'onStateChange': onYtStateChange,
                     'onError': onYtError
                 }
             });
         };
+
+        function switchPlayerMode(mode) {
+            const poster = document.getElementById('playerFullPoster');
+            const ytWrap = document.getElementById('ytPlayerWrapper');
+            const audioBtn = document.getElementById('modeAudioBtn');
+            const videoBtn = document.getElementById('modeVideoBtn');
+
+            if (mode === 'video') {
+                poster.classList.add('opacity-0');
+                ytWrap.classList.remove('opacity-0', 'pointer-events-none');
+                ytWrap.classList.add('opacity-100');
+                audioBtn.className = 'px-3 py-1 rounded-full text-white/70 hover:text-white flex items-center gap-1 transition';
+                videoBtn.className = 'px-3 py-1 rounded-full pill-active text-neutral-950 flex items-center gap-1 transition';
+                showToast('Video Mode: ON');
+            } else {
+                poster.classList.remove('opacity-0');
+                ytWrap.classList.add('opacity-0', 'pointer-events-none');
+                ytWrap.classList.remove('opacity-100');
+                audioBtn.className = 'px-3 py-1 rounded-full pill-active text-neutral-950 flex items-center gap-1 transition';
+                videoBtn.className = 'px-3 py-1 rounded-full text-white/70 hover:text-white flex items-center gap-1 transition';
+                showToast('Song Mode: Audio & Poster');
+            }
+        }
 
         function onYtStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING) {
@@ -847,17 +885,20 @@
             renderLyrics(song);
 
             // REAL YOUTUBE AUDIO ENGINE:
-            if (song.video_id && ytReady && ytPlayer) {
-                try {
-                    audio.pause();
-                    audio.currentTime = 0;
-                    activeEngine = 'youtube';
+            if (song.video_id) {
+                activeEngine = 'youtube';
+                audio.pause();
+                audio.currentTime = 0;
+
+                if (ytReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
                     ytPlayer.loadVideoById(song.video_id);
                     ytPlayer.playVideo();
                     isPlaying = true;
                     updatePlayIcons();
-                } catch (e) {
-                    playHtml5Audio(song);
+                } else {
+                    pendingVideoId = song.video_id;
+                    isPlaying = true;
+                    updatePlayIcons();
                 }
             } else {
                 playHtml5Audio(song);

@@ -12,14 +12,16 @@ class HomepageTest extends TestCase
 
     public function test_homepage_renders_header_and_bottom_navigation(): void
     {
+        $this->seed();
+
         $response = $this->get(route('home'));
 
         $response->assertOk();
         $response->assertSee('Trending');
         $response->assertSee('To get you started');
         $response->assertSee('Popular songs');
-        $response->assertSee('Saturday Party Tonight');
         $response->assertSee('Home');
+        $response->assertSee('Kesariya');
     }
 
     public function test_recording_a_play_increments_the_counter(): void

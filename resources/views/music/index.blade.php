@@ -359,7 +359,7 @@
             </div>
 
             <!-- MIDDLE SPACER -->
-            <div class="relative z-10 flex-1 cursor-pointer" onclick="openLyricsSheet()" title="Tap to view lyrics"></div>
+            <div class="relative z-10 flex-1"></div>
 
             <!-- LOWER CONTROLS & FEATURES CARD (SS 2 + SS 3 style) -->
             <div class="relative z-10 w-full px-5 pb-6">
@@ -572,6 +572,7 @@
 
         function playTrack(index) {
             if (index < 0 || index >= songs.length) return;
+            closeLyricsSheet();
             currentTrackIndex = index;
             const song = songs[index];
 
@@ -751,10 +752,15 @@
             }
 
             if (activeIndex !== -1) {
+                const sheet = document.getElementById('lyricsSheet');
+                const isSheetOpen = !sheet.classList.contains('translate-y-full');
+
                 document.querySelectorAll('.lyrics-line').forEach((el, idx) => {
                     if (idx === activeIndex) {
                         el.className = 'lyrics-line text-2xl font-black text-[#F04E23] scale-105 transition-all duration-300 py-1 drop-shadow-lg';
-                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        if (isSheetOpen) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
                     } else if (idx < activeIndex) {
                         el.className = 'lyrics-line text-base font-semibold text-white/50 transition-all duration-300 py-1';
                     } else {
@@ -768,24 +774,25 @@
 
         function openLyricsSheet() {
             document.getElementById('lyricsSheet').classList.remove('translate-y-full');
+            syncLyrics(audio.currentTime);
         }
 
         function closeLyricsSheet() {
             document.getElementById('lyricsSheet').classList.add('translate-y-full');
         }
 
-        // Touch & Drag-up listener on player
+        // Swipe-up listener specifically on the lyrics teaser bar
         let touchStartY = 0;
-        const playerModal = document.getElementById('nowPlayingModal');
-        playerModal.addEventListener('touchstart', (e) => {
+        const lyricsTeaser = document.getElementById('lyricsTeaserTrigger');
+        lyricsTeaser.addEventListener('touchstart', (e) => {
             touchStartY = e.touches[0].clientY;
         }, { passive: true });
 
-        playerModal.addEventListener('touchend', (e) => {
+        lyricsTeaser.addEventListener('touchend', (e) => {
             const touchEndY = e.changedTouches[0].clientY;
             const diff = touchStartY - touchEndY;
-            // Swiped UP more than 50px -> Open lyrics
-            if (diff > 50) {
+            // Swiped UP more than 30px on the teaser bar -> Open lyrics
+            if (diff > 30) {
                 openLyricsSheet();
             }
         }, { passive: true });

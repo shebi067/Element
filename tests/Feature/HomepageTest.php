@@ -10,22 +10,14 @@ class HomepageTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_homepage_renders_featured_trending_and_artists(): void
+    public function test_homepage_renders_header_and_bottom_navigation(): void
     {
-        $this->seed();
-
         $response = $this->get(route('home'));
 
         $response->assertOk();
-        $response->assertSee('Trending Now');
-        $response->assertSee('Popular Artists');
-        $response->assertSee('Arijit Singh');
-        $response->assertSee('Blinding Lights');
-    }
-
-    public function test_homepage_renders_without_songs(): void
-    {
-        $this->get(route('home'))->assertOk();
+        $response->assertSee('Hey, Aditya');
+        $response->assertSeeInOrder(['Home', 'Search', 'Library', 'Profile']);
+        $response->assertDontSee('Trending Now');
     }
 
     public function test_recording_a_play_increments_the_counter(): void

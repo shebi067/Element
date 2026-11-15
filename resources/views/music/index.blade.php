@@ -100,6 +100,62 @@
             box-shadow: inset 0 4px 10px rgba(255, 255, 255, 0.14), 0 10px 24px rgba(0, 0, 0, 0.5);
         }
 
+        /* Ultra-Realistic Liquid Glass Search Bar & Circle Button (Reference UI) */
+        .liquid-glass-search {
+            background: rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.55);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            border-left: 1.2px solid rgba(255, 255, 255, 0.30);
+            border-right: 1.2px solid rgba(255, 255, 255, 0.30);
+            box-shadow: 
+                inset 0 2px 4px rgba(255, 255, 255, 0.40),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.25),
+                0 8px 24px rgba(0, 0, 0, 0.28);
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .liquid-glass-search:focus-within {
+            background: rgba(255, 255, 255, 0.14);
+            border-top-color: rgba(255, 255, 255, 0.75);
+            border-color: rgba(255, 255, 255, 0.45);
+            box-shadow: 
+                inset 0 2px 5px rgba(255, 255, 255, 0.55),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.30),
+                0 12px 32px rgba(0, 0, 0, 0.38),
+                0 0 16px rgba(255, 255, 255, 0.15);
+        }
+
+        .liquid-glass-search-btn {
+            background: rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.55);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            border-left: 1.2px solid rgba(255, 255, 255, 0.30);
+            border-right: 1.2px solid rgba(255, 255, 255, 0.30);
+            box-shadow: 
+                inset 0 2px 4px rgba(255, 255, 255, 0.42),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.25),
+                0 8px 22px rgba(0, 0, 0, 0.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .liquid-glass-search-btn:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.16);
+            border-top-color: rgba(255, 255, 255, 0.80);
+            box-shadow: 
+                inset 0 2px 5px rgba(255, 255, 255, 0.55),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.25),
+                0 10px 26px rgba(0, 0, 0, 0.32);
+        }
+        .liquid-glass-search-btn:active {
+            transform: scale(0.95);
+        }
+
         .bottom-nav-dock {
             background: rgba(24, 18, 15, 0.94);
             backdrop-filter: blur(22px) saturate(150%);
@@ -179,15 +235,21 @@
         <!-- 2. SCROLLABLE MAIN HOMEPAGE CONTENT -->
         <main class="flex-1 overflow-y-auto no-scrollbar pt-2 px-5">
 
-            <!-- Search Bar -->
+            <!-- 2. LIQUID GLASS SEARCH BAR (Matching Reference Image) -->
             <div class="mt-2 mb-4">
-                <div class="flex items-center gap-2.5">
-                    <div class="flex-1 h-[48px] rounded-full glass-pill-inactive flex items-center px-4 gap-2.5">
-                        <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                        <input id="searchInput" type="text" placeholder="Search songs, artists..." class="w-full bg-transparent text-sm text-white placeholder-white/40 outline-none">
+                <div class="flex items-center gap-3">
+                    <div class="relative flex-1 h-[52px] rounded-full liquid-glass-search flex items-center px-5">
+                        <input id="searchInput" type="text" placeholder="Search..." autocomplete="off"
+                               class="w-full bg-transparent text-[15px] font-normal tracking-wide text-white placeholder-white/60 outline-none pr-7">
+                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-4 w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center text-xs transition" title="Clear">
+                            ✕
+                        </button>
                     </div>
-                    <button onclick="clearSearch()" class="w-[48px] h-[48px] rounded-full liquid-circle-btn flex items-center justify-center text-white/80 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <button onclick="handleSearchBtnClick()" aria-label="Search" class="w-[52px] h-[52px] rounded-full liquid-glass-search-btn shrink-0 group">
+                        <svg class="w-5 h-5 text-white/90 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="6.5"/>
+                            <path d="m16 16 4.5 4.5"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -207,62 +269,82 @@
                 </div>
             </section>
 
-            <!-- 4. "TO GET YOU STARTED" HERO CAROUSEL -->
-            <section class="mt-6">
-                <div class="mb-3 flex items-center justify-between">
-                    <h2 class="text-[19px] font-semibold tracking-tight text-white">To get you started</h2>
-                    <span class="text-[12px] font-medium text-[#8C827D]">Featured</span>
-                </div>
+            <!-- 4. "TO GET YOU STARTED" HERO CAROUSEL / EMPTY STATE -->
+            @if ($featuredSongs->count() > 0)
+                <section class="mt-6" id="featuredSection">
+                    <div class="mb-3 flex items-center justify-between">
+                        <h2 class="text-[19px] font-semibold tracking-tight text-white">To get you started</h2>
+                        <span class="text-[12px] font-medium text-[#8C827D]">Featured</span>
+                    </div>
 
-                <div class="flex items-center gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-                    @foreach ($featuredSongs as $song)
-                        <article onclick="playSongById({{ $song->id }})" class="relative w-[280px] h-[260px] rounded-[32px] overflow-hidden shrink-0 snap-start cursor-pointer group shadow-2xl border border-white/10">
-                            <img src="{{ $song->cover_url }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="{{ $song->title }}">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="flex items-center gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+                        @foreach ($featuredSongs as $song)
+                            <article onclick="playSongById({{ $song->id }})" class="relative w-[280px] h-[260px] rounded-[32px] overflow-hidden shrink-0 snap-start cursor-pointer group shadow-2xl border border-white/10">
+                                <img src="{{ $song->cover_url }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="{{ $song->title }}">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-                            <div class="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#F04E23] text-neutral-950 flex items-center justify-center opacity-90 group-hover:opacity-100 transition shadow-lg">
-                                <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                            </div>
+                                <div class="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#F04E23] text-neutral-950 flex items-center justify-center opacity-90 group-hover:opacity-100 transition shadow-lg">
+                                    <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
 
-                            <div class="absolute bottom-[12px] left-[12px] right-[12px] h-[70px] rounded-[22px] hero-glass-overlay px-4 flex flex-col justify-center">
-                                <div class="flex items-center justify-between">
-                                    <div class="pr-2 min-w-0 flex-1">
-                                        <h3 class="text-[15px] font-semibold text-white truncate leading-snug">{{ $song->title }}</h3>
-                                        <p class="text-[12px] font-normal text-[#D6CFCB] truncate mt-0.5">{{ $song->artist_name }} • {{ $song->genre }}</p>
-                                    </div>
-                                    <div class="w-8 h-8 rounded-full bg-white/15 border border-white/25 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <div class="absolute bottom-[12px] left-[12px] right-[12px] h-[70px] rounded-[22px] hero-glass-overlay px-4 flex flex-col justify-center">
+                                    <div class="flex items-center justify-between">
+                                        <div class="pr-2 min-w-0 flex-1">
+                                            <h3 class="text-[15px] font-semibold text-white truncate leading-snug">{{ $song->title }}</h3>
+                                            <p class="text-[12px] font-normal text-[#D6CFCB] truncate mt-0.5">{{ $song->artist_name }} • {{ $song->genre }}</p>
+                                        </div>
+                                        <div class="w-8 h-8 rounded-full bg-white/15 border border-white/25 flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </article>
-                    @endforeach
-                </div>
-            </section>
+                            </article>
+                        @endforeach
+                    </div>
+                </section>
+            @else
+                <!-- Clean Empty State Prompt to Import Playlists -->
+                <section class="mt-6" id="emptyImportBanner">
+                    <div onclick="openImportModal()" class="p-6 rounded-3xl hero-glass-overlay text-center cursor-pointer border border-red-500/30 hover:border-red-500/60 transition group shadow-2xl">
+                        <div class="w-14 h-14 mx-auto rounded-full bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-500 mb-3 group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-base font-extrabold text-white">Import Your Playlists</h3>
+                        <p class="text-xs text-[#D6CFCB] mt-1 max-w-[260px] mx-auto">No pre-loaded template soundtracks. Paste any YouTube playlist link or choose from trending mixes to import in real-time!</p>
+                        <button class="mt-4 px-5 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-[#F04E23] text-white text-xs font-bold shadow-lg shadow-red-600/30">
+                            ⚡ Open YouTube Importer
+                        </button>
+                    </div>
+                </section>
+            @endif
 
             <!-- 5. "POPULAR SONGS" SECTION -->
-            <section class="mt-6">
-                <div class="mb-3 flex items-center justify-between">
-                    <h2 class="text-[19px] font-semibold tracking-tight text-white">Popular songs</h2>
-                    <span class="text-[12px] font-medium text-[#8C827D]">Top Streamed</span>
-                </div>
+            @if ($popularSongs->count() > 0)
+                <section class="mt-6" id="popularSection">
+                    <div class="mb-3 flex items-center justify-between">
+                        <h2 class="text-[19px] font-semibold tracking-tight text-white">Popular songs</h2>
+                        <span class="text-[12px] font-medium text-[#8C827D]">Top Streamed</span>
+                    </div>
 
-                <div class="flex items-start gap-3.5 overflow-x-auto no-scrollbar">
-                    @foreach ($popularSongs as $song)
-                        <div onclick="playSongById({{ $song->id }})" class="w-[136px] shrink-0 cursor-pointer group">
-                            <div class="relative w-[136px] h-[138px] rounded-[22px] overflow-hidden border border-white/10 shadow-lg bg-[#1F1410]">
-                                <img src="{{ $song->cover_url }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="{{ $song->title }}">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                                <div class="absolute bottom-2 right-2 w-7 h-7 rounded-full bg-[#F04E23] flex items-center justify-center text-neutral-950 shadow opacity-90 group-hover:opacity-100 transition">
-                                    <svg class="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <div class="flex items-start gap-3.5 overflow-x-auto no-scrollbar">
+                        @foreach ($popularSongs as $song)
+                            <div onclick="playSongById({{ $song->id }})" class="w-[136px] shrink-0 cursor-pointer group">
+                                <div class="relative w-[136px] h-[138px] rounded-[22px] overflow-hidden border border-white/10 shadow-lg bg-[#1F1410]">
+                                    <img src="{{ $song->cover_url }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="{{ $song->title }}">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                                    <div class="absolute bottom-2 right-2 w-7 h-7 rounded-full bg-[#F04E23] flex items-center justify-center text-neutral-950 shadow opacity-90 group-hover:opacity-100 transition">
+                                        <svg class="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
                                 </div>
+                                <p class="mt-2 text-[13px] font-medium text-white/90 truncate">{{ $song->title }}</p>
+                                <p class="text-[11px] text-[#8C827D] truncate">{{ $song->artist_name }}</p>
                             </div>
-                            <p class="mt-2 text-[13px] font-medium text-white/90 truncate">{{ $song->title }}</p>
-                            <p class="text-[11px] text-[#8C827D] truncate">{{ $song->artist_name }}</p>
-                        </div>
-                    @endforeach
-                </div>
-            </section>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
 
             <!-- 6. ALL SONGS LIST -->
             <section class="mt-6 mb-4">
@@ -321,10 +403,11 @@
                 </svg>
             </button>
 
-            <button onclick="toggleSettingsModal(); switchNavTab('Settings', this)" aria-label="Theme & Settings" class="w-[50px] h-[50px] rounded-full dock-circle-btn flex items-center justify-center text-white/90 shrink-0">
-                <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+            <button onclick="openImportModal(); switchNavTab('Import', this)" id="navImportBtn" aria-label="Import from YouTube" class="w-[50px] h-[50px] rounded-full dock-circle-btn flex flex-col items-center justify-center text-white/90 shrink-0 relative group hover:border-red-500/60 transition">
+                <svg class="w-[20px] h-[20px] text-red-500 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
+                <span class="text-[8px] font-bold tracking-tight text-white/80 uppercase">Import</span>
             </button>
         </nav>
 
@@ -514,25 +597,107 @@
 
         </div>
 
-        <!-- 10. SETTINGS MODAL -->
-        <div id="settingsModal" class="fixed inset-0 max-w-md mx-auto bg-[#0D0705]/95 backdrop-blur-2xl z-50 hidden flex-col p-6 overflow-y-auto no-scrollbar">
-            <div class="flex items-center justify-between pb-4 border-b border-white/10">
-                <div>
-                    <h3 class="text-lg font-bold text-white">Playback Settings</h3>
-                    <p class="text-xs text-[#8C827D]">Audio Stream & Lyrics</p>
+        <!-- 10. REAL-TIME YOUTUBE IMPORT HUB MODAL -->
+        <div id="importModal" class="fixed inset-0 max-w-md mx-auto bg-[#0D0705]/95 backdrop-blur-3xl z-50 hidden flex-col p-6 overflow-y-auto no-scrollbar">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-500">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white tracking-tight">YouTube Importer</h3>
+                        <p class="text-[10px] text-[#8C827D]">Real-Time Playlist Extraction</p>
+                    </div>
                 </div>
-                <button onclick="toggleSettingsModal()" class="w-9 h-9 rounded-full liquid-circle-btn flex items-center justify-center text-white">✕</button>
+                <button onclick="closeImportModal()" class="w-9 h-9 rounded-full liquid-circle-btn flex items-center justify-center text-white" aria-label="Close">✕</button>
             </div>
 
-            <div class="space-y-4 mt-5 text-xs">
-                <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
-                    <p class="text-white font-semibold text-sm">Now Playing Features</p>
-                    <p class="text-[#D6CFCB] mt-1">Full-bleed poster background, interactive action buttons (Like 13K, Dislike, 99 Lyrics, Comments 197), and swipe-up live lyrics.</p>
+            <!-- Import URL Form & Beautiful Button -->
+            <div class="mt-5 space-y-4">
+                <div class="p-4 rounded-3xl hero-glass-overlay">
+                    <label class="block text-xs font-semibold text-white/90 mb-2">Paste YouTube Playlist URL</label>
+                    <div class="flex items-center gap-2 rounded-2xl bg-black/40 border border-white/10 px-3.5 py-2.5 focus-within:border-red-500/80 transition">
+                        <svg class="w-4 h-4 text-white/40 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                        <input id="ytPlaylistInput" type="text" placeholder="https://youtube.com/playlist?list=..." class="w-full bg-transparent text-xs text-white placeholder-white/40 outline-none">
+                    </div>
+
+                    <!-- Beautiful Glowing Import Button -->
+                    <button onclick="importCustomYouTubeUrl()" id="btnStartImport" class="mt-3.5 w-full h-12 rounded-2xl bg-gradient-to-r from-red-600 via-[#F04E23] to-red-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                        <span id="importBtnText">Import Playlist Now</span>
+                        <svg id="importBtnSpinner" class="w-4 h-4 text-white animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    </button>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
-                    <p class="text-white font-semibold text-sm">Audio Engine</p>
-                    <p class="text-[#D6CFCB] mt-1">Lossless MP3 streams linked to Laravel REST API with play count increments.</p>
+                <!-- Real-Time Progress Bar -->
+                <div id="importProgressBox" class="hidden p-4 rounded-2xl bg-white/5 border border-white/10 transition-all">
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span id="importStatusText" class="font-medium text-[#D6CFCB]">Connecting to YouTube API...</span>
+                        <span id="importPercentText" class="font-bold text-[#F04E23]">0%</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-black/50 overflow-hidden">
+                        <div id="importProgressBar" class="h-full bg-gradient-to-r from-red-600 to-[#F04E23] transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+
+                <!-- Curated 1-Click Real-time Import Presets -->
+                <div>
+                    <div class="mb-3 flex items-center justify-between">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-white/80">⚡ 1-Click Trending Playlists</h4>
+                        <span class="text-[10px] text-[#8C827D]">Real-Time Sync</span>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <!-- Preset 1: Coke Studio & Pakistani Hip-Hop -->
+                        <div class="p-3 rounded-2xl glass-pill-inactive flex items-center justify-between gap-3 hover:bg-white/15 transition">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=120&auto=format&fit=crop&q=80" class="w-12 h-12 rounded-xl object-cover shrink-0" alt="">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs font-bold text-white truncate">Coke Studio & Hip-Hop</p>
+                                    <p class="text-[10px] text-[#D6CFCB] truncate">Bandish (Jokhay), Pasoori, Downers At Dusk</p>
+                                    <span class="inline-block mt-0.5 text-[9px] px-1.5 py-0.2 rounded bg-red-600/30 text-red-300 font-medium">4 Tracks • Synced Lyrics</span>
+                                </div>
+                            </div>
+                            <button onclick="triggerPresetImport('coke-studio')" class="h-8 px-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-[11px] shrink-0 transition flex items-center gap-1 shadow">
+                                <span>Import</span>
+                            </button>
+                        </div>
+
+                        <!-- Preset 2: Punjabi Heatwave -->
+                        <div class="p-3 rounded-2xl glass-pill-inactive flex items-center justify-between gap-3 hover:bg-white/15 transition">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=120&auto=format&fit=crop&q=80" class="w-12 h-12 rounded-xl object-cover shrink-0" alt="">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs font-bold text-white truncate">YouTube Punjabi Heatwave</p>
+                                    <p class="text-[10px] text-[#D6CFCB] truncate">Karan Aujla (Softly), Shubh (No Love)</p>
+                                    <span class="inline-block mt-0.5 text-[9px] px-1.5 py-0.2 rounded bg-red-600/30 text-red-300 font-medium">2 Tracks • 320kbps</span>
+                                </div>
+                            </div>
+                            <button onclick="triggerPresetImport('punjabi-heat')" class="h-8 px-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-[11px] shrink-0 transition flex items-center gap-1 shadow">
+                                <span>Import</span>
+                            </button>
+                        </div>
+
+                        <!-- Preset 3: 24/7 Lofi Study Beats -->
+                        <div class="p-3 rounded-2xl glass-pill-inactive flex items-center justify-between gap-3 hover:bg-white/15 transition">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=120&auto=format&fit=crop&q=80" class="w-12 h-12 rounded-xl object-cover shrink-0" alt="">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs font-bold text-white truncate">24/7 Lofi Chill Beats</p>
+                                    <p class="text-[10px] text-[#D6CFCB] truncate">Tokyo Rain, Coffee & Sunset Vinyl</p>
+                                    <span class="inline-block mt-0.5 text-[9px] px-1.5 py-0.2 rounded bg-red-600/30 text-red-300 font-medium">2 Tracks • Ambient</span>
+                                </div>
+                            </div>
+                            <button onclick="triggerPresetImport('lofi-chill')" class="h-8 px-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-[11px] shrink-0 transition flex items-center gap-1 shadow">
+                                <span>Import</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -849,7 +1014,13 @@
         }
 
         function filterTracks() {
-            const term = document.getElementById('searchInput').value.trim().toLowerCase();
+            const input = document.getElementById('searchInput');
+            const term = input.value.trim().toLowerCase();
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', term.length === 0);
+            }
+
             let count = 0;
             document.querySelectorAll('.song-item').forEach(item => {
                 const matchGenre = (activeCategory === 'All' || item.dataset.genre === activeCategory);
@@ -858,19 +1029,163 @@
                 item.classList.toggle('hidden', !visible);
                 if (visible) count++;
             });
-            document.getElementById('songsCountLabel').textContent = `${count} tracks`;
-            document.getElementById('noSongsFound').classList.toggle('hidden', count > 0);
+            const countLabel = document.getElementById('songsCountLabel');
+            if (countLabel) countLabel.textContent = `${count} tracks`;
+            const noSongs = document.getElementById('noSongsFound');
+            if (noSongs) noSongs.classList.toggle('hidden', count > 0);
         }
 
         document.getElementById('searchInput').addEventListener('input', filterTracks);
 
+        function handleSearchBtnClick() {
+            const input = document.getElementById('searchInput');
+            if (input.value.trim().length > 0) {
+                filterTracks();
+                showToast(`Searching for "${input.value}"`);
+            } else {
+                input.focus();
+            }
+        }
+
         function clearSearch() {
-            document.getElementById('searchInput').value = '';
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) clearBtn.classList.add('hidden');
             filterTracks();
+            input.focus();
         }
 
         function focusSearch() {
             document.getElementById('searchInput').focus();
+        }
+
+        function openImportModal() {
+            const modal = document.getElementById('importModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeImportModal() {
+            const modal = document.getElementById('importModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function importCustomYouTubeUrl() {
+            const input = document.getElementById('ytPlaylistInput');
+            const url = input.value.trim();
+            if (!url) {
+                showToast('Please enter a YouTube playlist URL');
+                input.focus();
+                return;
+            }
+            executeImport(null, url);
+        }
+
+        function triggerPresetImport(preset) {
+            executeImport(preset, null);
+        }
+
+        async function executeImport(preset, url) {
+            const btn = document.getElementById('btnStartImport');
+            const btnText = document.getElementById('importBtnText');
+            const btnSpinner = document.getElementById('importBtnSpinner');
+            const progressBox = document.getElementById('importProgressBox');
+            const progressBar = document.getElementById('importProgressBar');
+            const statusText = document.getElementById('importStatusText');
+            const percentText = document.getElementById('importPercentText');
+
+            // UI Loading state
+            btn.disabled = true;
+            btnText.textContent = 'Importing...';
+            btnSpinner.classList.remove('hidden');
+            progressBox.classList.remove('hidden');
+
+            progressBar.style.width = '20%';
+            percentText.textContent = '20%';
+            statusText.textContent = 'Connecting to YouTube Music server...';
+
+            setTimeout(() => {
+                progressBar.style.width = '55%';
+                percentText.textContent = '55%';
+                statusText.textContent = 'Parsing playlist tracks, covers & lyrics...';
+            }, 600);
+
+            try {
+                const response = await fetch('/api/v1/import/youtube', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ preset: preset, playlist_url: url })
+                });
+
+                const data = await response.json();
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+                statusText.textContent = '✓ Successfully imported to Element Library!';
+
+                if (data.status === 'success' && data.tracks && data.tracks.length > 0) {
+                    // Prepend tracks into live songs queue
+                    data.tracks.forEach(t => {
+                        const existingIdx = songs.findIndex(s => s.id === t.id);
+                        if (existingIdx !== -1) {
+                            songs[existingIdx] = t;
+                        } else {
+                            songs.unshift(t);
+
+                            // Add to DOM list
+                            const li = document.createElement('li');
+                            li.dataset.genre = t.genre;
+                            li.dataset.search = (t.title + ' ' + t.artist).toLowerCase();
+                            li.className = 'song-item animate-pulse';
+                            li.innerHTML = `
+                                <button onclick="playSongById(${t.id})" class="w-full flex items-center justify-between p-2.5 rounded-2xl glass-pill-inactive text-left transition hover:bg-white/15 border-l-2 border-red-500">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                                        <img src="${t.cover}" class="w-12 h-12 rounded-xl object-cover shrink-0" alt="">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="song-title text-sm font-semibold text-white truncate">${t.title}</p>
+                                            <p class="text-xs text-[#D6CFCB] truncate">${t.artist} • <span class="text-red-400">YouTube</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3 shrink-0 ml-2">
+                                        <span class="text-xs text-[#8C827D]">${t.duration}</span>
+                                        <span class="w-8 h-8 rounded-full bg-red-600/30 text-red-400 flex items-center justify-center">
+                                            <svg class="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        </span>
+                                    </div>
+                                </button>
+                            `;
+                            const list = document.getElementById('songListContainer');
+                            list.insertBefore(li, list.firstChild);
+                        }
+                    });
+
+                    document.getElementById('songsCountLabel').textContent = `${songs.length} tracks`;
+                    showToast(`🎉 Imported ${data.tracks.length} tracks from YouTube!`);
+
+                    setTimeout(() => {
+                        closeImportModal();
+                        // Play the first imported song immediately!
+                        playSongById(data.tracks[0].id);
+                    }, 1200);
+                } else {
+                    showToast('Failed to parse playlist');
+                }
+            } catch (err) {
+                showToast('Import error: Check network connection');
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btnText.textContent = 'Import Playlist Now';
+                    btnSpinner.classList.add('hidden');
+                    progressBox.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                }, 1500);
+            }
         }
 
         function openNowPlayingModal() {

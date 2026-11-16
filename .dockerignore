@@ -1,0 +1,9 @@
+.git
+.github
+node_modules
+vendor
+*.py
+*.mp4
+*.m4a
+*.jsonl
+.gemini

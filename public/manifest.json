@@ -1,0 +1,18 @@
+{
+  "name": "Element Music",
+  "short_name": "Element",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070403",
+  "theme_color": "#F04E23",
+  "description": "Element Music Player by Shehbaz Ashraf",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192 512x512 1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

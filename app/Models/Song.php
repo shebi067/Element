@@ -42,4 +42,16 @@ class Song extends Model
     {
         return $this->belongsToMany(Playlist::class, 'playlist_song');
     }
+
+    public function getFormattedDurationAttribute(): string
+    {
+        if (! $this->duration) {
+            return '3:30';
+        }
+        if (str_contains((string) $this->duration, ':')) {
+            return (string) $this->duration;
+        }
+
+        return gmdate('i:s', (int) $this->duration);
+    }
 }

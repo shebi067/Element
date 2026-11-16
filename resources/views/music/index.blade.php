@@ -774,33 +774,49 @@
 
         // YouTube IFrame API Ready Callback
         window.onYouTubeIframeAPIReady = function() {
-            ytPlayer = new YT.Player('ytPlayer', {
-                height: '100%',
-                width: '100%',
-                playerVars: {
-                    'playsinline': 1,
-                    'controls': 0,
-                    'disablekb': 1,
-                    'fs': 0,
-                    'rel': 0,
-                    'autoplay': 1,
-                    'modestbranding': 1,
-                    'origin': window.location.origin
-                },
-                events: {
-                    'onReady': () => {
-                        ytReady = true;
-                        if (pendingVideoId) {
-                            ytPlayer.loadVideoById(pendingVideoId);
-                            ytPlayer.playVideo();
-                            pendingVideoId = null;
-                        }
+            try {
+                ytPlayer = new YT.Player('ytPlayer', {
+                    height: '100%',
+                    width: '100%',
+                    host: 'https://www.youtube-nocookie.com',
+                    playerVars: {
+                        'playsinline': 1,
+                        'controls': 0,
+                        'disablekb': 1,
+                        'fs': 0,
+                        'rel': 0,
+                        'autoplay': 1,
+                        'modestbranding': 1
                     },
-                    'onStateChange': onYtStateChange,
-                    'onError': onYtError
-                }
-            });
+                    events: {
+                        'onReady': () => {
+                            ytReady = true;
+                            if (pendingVideoId) {
+                                ytPlayer.loadVideoById(pendingVideoId);
+                                ytPlayer.playVideo();
+                                pendingVideoId = null;
+                            }
+                        },
+                        'onStateChange': onYtStateChange,
+                        'onError': onYtError
+                    }
+                });
+            } catch (err) {
+                console.error('YouTube Player Init Error:', err);
+            }
         };
+
+        function onYtError(event) {
+            console.warn('YouTube playback error code:', event.data);
+            const song = currentSong();
+            if (song && song.video_id) {
+                // Direct iframe embed fallback without SDK restrictions
+                const iframe = document.querySelector('#ytPlayerWrapper iframe') || document.getElementById('ytPlayer');
+                if (iframe) {
+                    iframe.src = `https://www.youtube-nocookie.com/embed/${song.video_id}?autoplay=1&playsinline=1&controls=0&rel=0`;
+                }
+            }
+        }
 
         function switchPlayerMode(mode) {
             const poster = document.getElementById('playerFullPoster');
@@ -897,10 +913,14 @@
                     updatePlayIcons();
                 } else {
                     pendingVideoId = song.video_id;
+                    const iframe = document.querySelector('#ytPlayerWrapper iframe') || document.getElementById('ytPlayer');
+                    if (iframe && iframe.tagName === 'IFRAME') {
+                        iframe.src = `https://www.youtube-nocookie.com/embed/${song.video_id}?autoplay=1&playsinline=1&controls=0&rel=0&enablejsapi=1`;
+                    }
                     isPlaying = true;
                     updatePlayIcons();
                 }
-            } else {
+            } else if (song.audio) {
                 playHtml5Audio(song);
             }
 
@@ -914,6 +934,7 @@
         }
 
         function playHtml5Audio(song) {
+            if (!song || !song.audio) return;
             if (ytPlayer && ytReady) {
                 try { ytPlayer.pauseVideo(); } catch (e) {}
             }

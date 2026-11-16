@@ -142,14 +142,6 @@ class YouTubeImportController extends Controller
                 return null;
             }
 
-            $sampleAudioSources = [
-                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-            ];
-
             $tracks = [];
             foreach ($rawTracks as $index => $item) {
                 $tSnippet = $item['snippet'] ?? [];
@@ -176,7 +168,7 @@ class YouTubeImportController extends Controller
                     ?? $tSnippet['thumbnails']['medium']['url']
                     ?? $playlistCover;
 
-                $audioUrl = $sampleAudioSources[$index % count($sampleAudioSources)];
+                $audioUrl = "https://www.youtube.com/watch?v={$videoId}";
 
                 $tracks[] = [
                     'title' => $parsed['title'],
@@ -338,7 +330,7 @@ class YouTubeImportController extends Controller
                         'album_name' => 'Bandish Single',
                         'genre' => 'Hip-Hop',
                         'cover_url' => 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=900&auto=format&fit=crop&q=80',
-                        'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+                        'audio_url' => '',
                         'video_id' => 'hF2L07bZ28M',
                         'duration' => '4:50',
                         'lyrics' => [
@@ -356,7 +348,7 @@ class YouTubeImportController extends Controller
                         'album_name' => 'Open Letter',
                         'genre' => 'Hip-Hop',
                         'cover_url' => 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&auto=format&fit=crop&q=80',
-                        'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+                        'audio_url' => '',
                         'video_id' => 'B_6vVjQ-L-g',
                         'duration' => '3:40',
                         'lyrics' => [
@@ -372,7 +364,7 @@ class YouTubeImportController extends Controller
                         'album_name' => 'Coke Studio Season 14',
                         'genre' => 'Sufi',
                         'cover_url' => 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=900&auto=format&fit=crop&q=80',
-                        'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                        'audio_url' => '',
                         'video_id' => '5Eqb_-j3FDA',
                         'duration' => '3:44',
                         'lyrics' => [
@@ -388,7 +380,7 @@ class YouTubeImportController extends Controller
                         'album_name' => 'Kahani Suno',
                         'genre' => 'Acoustic',
                         'cover_url' => 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=900&auto=format&fit=crop&q=80',
-                        'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                        'audio_url' => '',
                         'video_id' => '_XbvXH59m2o',
                         'duration' => '2:55',
                         'lyrics' => [
@@ -412,7 +404,7 @@ class YouTubeImportController extends Controller
                         'album_name' => 'Chilled Cow Sessions',
                         'genre' => 'Lo-Fi',
                         'cover_url' => 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=900&auto=format&fit=crop&q=80',
-                        'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+                        'audio_url' => '',
                         'duration' => '3:15',
                         'lyrics' => [
                             ['time' => 0, 'text' => 'Soft rain tapping on the window'],
@@ -426,7 +418,7 @@ class YouTubeImportController extends Controller
                         'album_name' => 'Sunset Vibes Vol. 1',
                         'genre' => 'Lo-Fi',
                         'cover_url' => 'https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=900&auto=format&fit=crop&q=80',
-                        'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+                        'audio_url' => '',
                         'duration' => '2:45',
                         'lyrics' => [
                             ['time' => 0, 'text' => 'Tape hum and vintage warmth'],
@@ -447,7 +439,7 @@ class YouTubeImportController extends Controller
                         'album_name' => 'Making Memories',
                         'genre' => 'Punjabi',
                         'cover_url' => 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=900&auto=format&fit=crop&q=80',
-                        'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+                        'audio_url' => '',
                         'duration' => '2:35',
                         'lyrics' => [
                             ['time' => 0, 'text' => 'Kina chir tainu chahvaan main'],
@@ -461,7 +453,7 @@ class YouTubeImportController extends Controller
                         'album_name' => 'Not by Chance',
                         'genre' => 'Punjabi',
                         'cover_url' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=900&auto=format&fit=crop&q=80',
-                        'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+                        'audio_url' => '',
                         'duration' => '2:50',
                         'lyrics' => [
                             ['time' => 0, 'text' => 'Rahaan vich teri rehnde assi'],

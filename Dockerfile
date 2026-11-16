@@ -1,4 +1,4 @@
-FROM php:8.3-cli-alpine
+FROM php:8.4-cli-alpine
 
 # Install system packages & PHP extensions
 RUN apk add --no-cache \
@@ -9,7 +9,7 @@ RUN apk add --no-cache \
     zip \
     unzip \
     git \
-    && docker-php-ext-install pdo_sqlite zip pcntl
+    && docker-php-ext-install pdo_sqlite zip pcntl bcmath
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -23,7 +23,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV PORT=10000
 
 # Install dependencies and compile assets
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 RUN npm install
 RUN npm run build
 
